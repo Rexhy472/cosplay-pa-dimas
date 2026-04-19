@@ -1,0 +1,9 @@
+{
+  "name": "bot-messenger-vercel",
+  "version": "1.0.0",
+  "description": "Bot pengirim pesan lewat web panel",
+  "main": "api/kirim.js",
+  "dependencies": {
+    "node-fetch": "^3.3.0"
+  }
+}
