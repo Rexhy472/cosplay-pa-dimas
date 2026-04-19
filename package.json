@@ -1,4 +1,14 @@
 {
+  "name": "cosplay-pa-dimas",
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "start": "node api/kirim.js"
+  }
+}{
   "name": "bot-messenger",
   "version": "1.0.0",
   "main": "api/kirim.js",
