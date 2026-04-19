@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot Control</title>
+    <style>
+        body { font-family: sans-serif; background: #202225; color: white; display: flex; justify-content: center; padding: 20px; }
+        .box { background: #2f3136; padding: 20px; border-radius: 10px; width: 100%; max-width: 350px; }
+        select, textarea, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 5px; border: none; box-sizing: border-box; }
+        textarea { height: 120px; resize: none; background: #40444b; color: white; }
+        button { background: #5865f2; color: white; font-weight: bold; cursor: pointer; }
+        button:active { background: #4752c4; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h3>🚀 Bot Messenger</h3>
+        
+        <label>Kirim Ke:</label>
+        <select id="targetUrl">
+            <option value="LINK_WEBHOOK_CHANNEL_MATERI">Channel Materi</option>
+            <option value="LINK_WEBHOOK_CHANNEL_UMUM">Channel Umum / Chat</option>
+            <option value="LINK_WEBHOOK_CHANNEL_ADMIN">Channel Admin</option>
+        </select>
+
+        <textarea id="pesan" placeholder="Tulis pesan kamu..."></textarea>
+        
+        <button onclick="kirim()">KIRIM SEKARANG</button>
+        <p id="notif" style="text-align:center; font-size: 14px;"></p>
+    </div>
+
+    <script>
+        async function kirim() {
+            const btn = document.querySelector('button');
+            const notif = document.getElementById('notif');
+            
+            const data = {
+                targetUrl: document.getElementById('targetUrl').value,
+                pesan: document.getElementById('pesan').value
+            };
+
+            if (!data.pesan) return alert("Isi pesannya dulu!");
+
+            btn.disabled = true;
+            notif.innerText = "Sabar, lagi ngirim...";
+
+            const res = await fetch('/api/kirim', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (res.ok) {
+                notif.innerText = "✅ Pesan meluncur!";
+                document.getElementById('pesan').value = "";
+            } else {
+                notif.innerText = "❌ Gagal kirim!";
+            }
+            btn.disabled = false;
+        }
+    </script>
+</body>
+</html>
