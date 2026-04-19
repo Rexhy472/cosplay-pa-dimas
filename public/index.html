@@ -3,6 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot Messenger</title>
+    <style>
+        body { font-family: sans-serif; background: #2f3136; color: white; display: flex; justify-content: center; padding: 20px; }
+        .card { background: #36393f; padding: 20px; border-radius: 10px; width: 100%; max-width: 400px; }
+        select, textarea, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 5px; border: none; box-sizing: border-box; }
+        select, textarea { background: #40444b; color: white; }
+        button { background: #5865f2; color: white; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h3>🤖 Bot Messenger Panel</h3>
+        <label>Kirim Ke Channel:</label>
+        <select id="channelId">
+            <option value="111222333444555">💬 Channel Umum</option>
+            <option value="999888777666555">📢 Pengumuman</option>
+        </select>
+
+        <textarea id="pesan" placeholder="Ketik pesan..."></textarea>
+        <button onclick="kirim()">KIRIM LEWAT BOT</button>
+        <p id="status" style="text-align:center;"></p>
+    </div>
+
+    <script>
+        async function kirim() {
+            const status = document.getElementById('status');
+            const data = {
+                channelId: document.getElementById('channelId').value,
+                pesan: document.getElementById('pesan').value
+            };
+
+            if (!data.pesan) return alert("Isi pesan!");
+
+            status.innerText = "⏳ Mengirim...";
+            const res = await fetch('/api/kirim', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (res.ok) {
+                status.innerText = "✅ Pesan terkirim!";
+                document.getElementById('pesan').value = "";
+            } else {
+                const err = await res.json();
+                status.innerText = "❌ Gagal: " + err.error;
+            }
+        }
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Discord Admin Panel</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #2f3136; color: white; display: flex; justify-content: center; padding: 20px; margin: 0; }
