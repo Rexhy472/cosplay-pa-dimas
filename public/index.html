@@ -3,61 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bot Control</title>
+    <title>Discord Admin Panel</title>
     <style>
-        body { font-family: sans-serif; background: #202225; color: white; display: flex; justify-content: center; padding: 20px; }
-        .box { background: #2f3136; padding: 20px; border-radius: 10px; width: 100%; max-width: 350px; }
-        select, textarea, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 5px; border: none; box-sizing: border-box; }
-        textarea { height: 120px; resize: none; background: #40444b; color: white; }
-        button { background: #5865f2; color: white; font-weight: bold; cursor: pointer; }
-        button:active { background: #4752c4; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #2f3136; color: white; display: flex; justify-content: center; padding: 20px; }
+        .container { background: #36393f; padding: 25px; border-radius: 12px; width: 100%; max-width: 450px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+        h2 { text-align: center; color: #5865f2; margin-bottom: 20px; }
+        label { display: block; margin-top: 15px; font-size: 14px; color: #b9bbbe; }
+        select, textarea, button { width: 100%; padding: 12px; margin-top: 8px; border-radius: 6px; border: none; box-sizing: border-box; font-size: 16px; }
+        select, textarea { background: #40444b; color: white; border: 1px solid #202225; }
+        textarea { height: 120px; resize: none; }
+        button { background: #5865f2; color: white; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.2s; }
+        button:hover { background: #4752c4; }
+        button:disabled { background: #4f545c; cursor: not-allowed; }
+        #status { text-align: center; margin-top: 15px; font-size: 14px; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h3>🚀 Bot Messenger</h3>
+    <div class="container">
+        <h2>🚀 Bot Control Panel</h2>
         
-        <label>Kirim Ke:</label>
+        <label>Pilih Channel Tujuan:</label>
         <select id="targetUrl">
-            <option value="LINK_WEBHOOK_CHANNEL_MATERI">Channel Materi</option>
-            <option value="LINK_WEBHOOK_CHANNEL_UMUM">Channel Umum / Chat</option>
-            <option value="LINK_WEBHOOK_CHANNEL_ADMIN">Channel Admin</option>
+            <option value="ISI_LINK_WEBHOOK_CHANNEL_1">💬 Channel Umum</option>
+            <option value="ISI_LINK_WEBHOOK_CHANNEL_2">📚 Channel Materi</option>
+            <option value="ISI_LINK_WEBHOOK_CHANNEL_3">📢 Channel Pengumuman</option>
+            <option value="ISI_LINK_WEBHOOK_CHANNEL_4">🛠️ Channel Admin</option>
         </select>
 
-        <textarea id="pesan" placeholder="Tulis pesan kamu..."></textarea>
+        <label>Isi Pesan:</label>
+        <textarea id="pesan" placeholder="Ketik pesan yang ingin dikirim..."></textarea>
         
-        <button onclick="kirim()">KIRIM SEKARANG</button>
-        <p id="notif" style="text-align:center; font-size: 14px;"></p>
+        <button id="btnKirim" onclick="kirimPesan()">KIRIM SEKARANG</button>
+        <div id="status"></div>
     </div>
 
     <script>
-        async function kirim() {
-            const btn = document.querySelector('button');
-            const notif = document.getElementById('notif');
-            
-            const data = {
-                targetUrl: document.getElementById('targetUrl').value,
-                pesan: document.getElementById('pesan').value
-            };
+        async function kirimPesan() {
+            const btn = document.getElementById('btnKirim');
+            const status = document.getElementById('status');
+            const targetUrl = document.getElementById('targetUrl').value;
+            const pesan = document.getElementById('pesan').value;
 
-            if (!data.pesan) return alert("Isi pesannya dulu!");
+            if (!pesan) return alert("Isi pesannya dulu, Bos!");
+            if (targetUrl.includes("ISI_LINK")) return alert("Link Webhook belum kamu ganti di kode!");
 
             btn.disabled = true;
-            notif.innerText = "Sabar, lagi ngirim...";
+            status.innerText = "⏳ Sedang mengirim...";
+            status.style.color = "white";
 
-            const res = await fetch('/api/kirim', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
+            try {
+                const res = await fetch('/api/kirim', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pesan, targetUrl })
+                });
 
-            if (res.ok) {
-                notif.innerText = "✅ Pesan meluncur!";
-                document.getElementById('pesan').value = "";
-            } else {
-                notif.innerText = "❌ Gagal kirim!";
+                if (res.ok) {
+                    status.innerText = "✅ Berhasil! Pesan sudah muncul di Discord.";
+                    status.style.color = "#43b581";
+                    document.getElementById('pesan').value = "";
+                } else {
+                    const data = await res.json();
+                    status.innerText = "❌ Gagal: " + (data.error || "Cek link Webhook");
+                    status.style.color = "#f04747";
+                }
+            } catch (e) {
+                status.innerText = "❌ Error: Jaringan bermasalah.";
+                status.style.color = "#f04747";
+            } finally {
+                btn.disabled = false;
             }
-            btn.disabled = false;
         }
     </script>
 </body>
