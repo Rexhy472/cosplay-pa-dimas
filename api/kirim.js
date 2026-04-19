@@ -1,19 +1,20 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Gunakan POST' });
 
-  const { pesan, channelKey } = req.body;
+  const { pesan, channelId } = req.body;
+  const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN; // Ambil Token dari Vercel
 
-  // Mengambil link webhook dari Environment Variable Vercel
-  const webhookUrl = process.env[channelKey];
-
-  if (!webhookUrl) {
-    return res.status(400).json({ error: `Variabel ${channelKey} belum diset di Vercel!` });
+  if (!pesan || !channelId) {
+    return res.status(400).json({ error: 'Pesan atau Channel belum dipilih!' });
   }
 
   try {
-    const response = await fetch(webhookUrl, {
+    const response = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Authorization': `Bot ${BOT_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ content: pesan }),
     });
 
